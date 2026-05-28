@@ -1,5 +1,13 @@
 # setup-scoop
 
+> [!CAUTION]
+> **For normal users:**
+> Please refer to the original repository:
+> **[MinoruSekine/setup-scoop](https://github.com/MinoruSekine/setup-scoop)**.  
+> This repository is a temporary sandbox
+> **only for testing the release workflow of `v5`**.
+> Do not use this in your production workflows.
+
 - `setup-scoop` action provides functions below
   - Install `scoop` to your Windows runner
   - Update `PATH` environment variable
