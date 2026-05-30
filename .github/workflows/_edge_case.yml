@@ -9,7 +9,6 @@ on:
         description: |
           Workflow target.
           - "dev": HEAD of dev branch
-          - "release": latest release tag
           - "pr": PR
         required: true
         type: string
@@ -21,8 +20,7 @@ jobs:
       - if: >-
           ${{
             inputs.target != 'pr' &&
-            inputs.target != 'dev' &&
-            inputs.target != 'release'
+            inputs.target != 'dev'
           }}
         run: >-
           Write-Error "Unsupported target ${{ inputs.target }}"
@@ -102,19 +100,10 @@ jobs:
           apps: -foobar
         continue-on-error: true
 
-      - id: release
-        if: inputs.target == 'release'
-        uses: MinoruSekine/setup-scoop@v4.0.2
-        with:
-          buckets: extras
-          apps: -foobar
-        continue-on-error: true
-
       - if: >-
           ${{
             steps.pr.outcome == 'success' ||
-            steps.dev.outcome == 'success' ||
-            steps.release.outcome == 'success'
+            steps.dev.outcome == 'success'
           }}
         run: >-
           Write-Error "${{ github.job }} hasn't been prevented."
@@ -152,18 +141,10 @@ jobs:
           buckets: java -add
         continue-on-error: true
 
-      - id: release
-        if: inputs.target == 'release'
-        uses: MinoruSekine/setup-scoop@v4.0.2
-        with:
-          buckets: java -add
-        continue-on-error: true
-
       - if: >-
           ${{
             steps.pr.outcome == 'success' ||
-            steps.dev.outcome == 'success' ||
-            steps.release.outcome == 'success'
+            steps.dev.outcome == 'success'
           }}
         run: >-
           Write-Error "${{ github.job }} hasn't been prevented."
@@ -201,18 +182,10 @@ jobs:
           buckets: unknown
         continue-on-error: true
 
-      - id: release
-        if: inputs.target == 'release'
-        uses: MinoruSekine/setup-scoop@v4.0.2
-        with:
-          buckets: unknown
-        continue-on-error: true
-
       - if: >-
           ${{
             steps.pr.outcome == 'success' ||
-            steps.dev.outcome == 'success' ||
-            steps.release.outcome == 'success'
+            steps.dev.outcome == 'success'
           }}
         run: >-
           Write-Error "${{ github.job }} hasn't been prevented."
@@ -246,11 +219,6 @@ jobs:
 
       - if: inputs.target == 'dev'
         uses: MinoruSekine/setup-scoop@main
-        with:
-          run_as_admin: false
-
-      - if: inputs.target == 'release'
-        uses: MinoruSekine/setup-scoop@v4.0.2
         with:
           run_as_admin: false
 
