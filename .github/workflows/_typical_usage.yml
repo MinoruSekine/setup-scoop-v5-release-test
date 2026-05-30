@@ -9,7 +9,6 @@ on:
         description: |
           Workflow target.
           - "dev": HEAD of dev branch
-          - "release": latest release tag
           - "pr": PR
         required: true
         type: string
@@ -35,9 +34,6 @@ jobs:
 
       - if: inputs.target == 'dev'
         uses: MinoruSekine/setup-scoop@main
-
-      - if: inputs.target == 'release'
-        uses: MinoruSekine/setup-scoop@v4.0.2
 
       - name: Confirm scoop working
         shell: pwsh
@@ -99,11 +95,6 @@ jobs:
         with:
           buckets: extras
 
-      - if: inputs.target == 'release'
-        uses: MinoruSekine/setup-scoop@v4.0.2
-        with:
-          buckets: extras
-
       - name: Validate extras bucket is available
         shell: pwsh
         run: |
@@ -132,11 +123,6 @@ jobs:
 
       - if: inputs.target == 'dev'
         uses: MinoruSekine/setup-scoop@main
-        with:
-          buckets: java games php
-
-      - if: inputs.target == 'release'
-        uses: MinoruSekine/setup-scoop@v4.0.2
         with:
           buckets: java games php
 
@@ -282,13 +268,6 @@ jobs:
           buckets: extras
           apps: ${{ env.TEST_TARGET_APPS }}
 
-      - if: inputs.target == 'release'
-        uses: MinoruSekine/setup-scoop@v4.0.2
-        with:
-          buckets: extras
-          apps: ${{ env.TEST_TARGET_APPS }}
-
-
       - name: Validate apps are available or not
         shell: pwsh
         run: |
@@ -321,14 +300,6 @@ jobs:
 
       - if: inputs.target == 'dev'
         uses: MinoruSekine/setup-scoop@main
-        with:
-          install_scoop: 'false'
-          scoop_update: 'false'
-          scoop_checkup: 'false'
-          update_path: 'true'
-
-      - if: inputs.target == 'release'
-        uses: MinoruSekine/setup-scoop@v4.0.2
         with:
           install_scoop: 'false'
           scoop_update: 'false'
