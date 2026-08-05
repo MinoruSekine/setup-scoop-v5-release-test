@@ -1,0 +1,66 @@
+name: Create draft release by workflow
+
+env:
+  SCRIPTS_DIR: ~/.github/workflows/scripts
+
+on:
+  workflow_dispatch:
+    inputs:
+      major_ver:
+        required: true
+        type: number
+      minor_ver:
+        required: true
+        type: number
+      patch_ver:
+        required: true
+        type: number
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    env:
+# yamllint disable rule:line-length
+      ARCHIVE_FILE: ${{ github.event.repository.name }}-v${{ inputs.major_ver }}.${{ inputs.minor_ver }}.${{ inputs.patch_ver }}.zip
+      RELEASE_BRANCH: releng/v${{ inputs.major_ver }}
+      SEMANTIC_VERSIONING: v${{ inputs.major_ver }}.${{ inputs.minor_ver }}.${{ inputs.patch_ver }}
+# yamllint enable rule:line-length
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Test inputs are semantic versioning.
+        shell: bash
+        run: |
+          bash ${{ env.SCRIPTS_DIR }}/test_semantic_versioning.sh \
+          ${{ env.SEMANTIC_VERSIONING }}
+
+      - uses: actions/checkout@v6
+        with:
+          ref: releng/v${{ inputs.major_ver }}
+          persist-credentials: false
+
+      - name: Store release target SHA.
+        shell: bash
+        run: |
+          echo "RELEASE_TARGET=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - name: Create archive to attach into draft release.
+        shell: bash
+        run: |
+          git archive --format=zip \
+          -o ${{ env.ARCHIVE_FILE }} \
+          ${{ env.RELEASE_TARGET }}
+
+      - name: Create draft release with attached archive.
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${{ env.SEMANTIC_VERSIONING }}" \
+          --draft \
+          --target ${{ env.RELEASE_TARGET }} \
+          --title "${{ env.SEMANTIC_VERSIONING }}" \
+          --generate-notes \
+          ${{ env.ARCHIVE_FILE }}
