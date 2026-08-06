@@ -1,7 +1,7 @@
 name: Create draft release by workflow
 
 env:
-  SCRIPTS_DIR: ~/.github/workflows/scripts
+  SCRIPTS_DIR: .github/workflows/scripts
 
 on:
   workflow_dispatch:
@@ -31,16 +31,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: releng/v${{ inputs.major_ver }}
+          persist-credentials: false
+
       - name: Test inputs are semantic versioning.
         shell: bash
         run: |
           bash ${{ env.SCRIPTS_DIR }}/test_semantic_versioning.sh \
           ${{ env.SEMANTIC_VERSIONING }}
-
-      - uses: actions/checkout@v6
-        with:
-          ref: releng/v${{ inputs.major_ver }}
-          persist-credentials: false
 
       - name: Store release target SHA.
         shell: bash
