@@ -1,8 +1,5 @@
 name: Create draft release by workflow
 
-env:
-  SCRIPTS_DIR: .github/workflows/scripts
-
 on:
   workflow_dispatch:
     inputs:
@@ -31,16 +28,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+# yamllint disable rule:line-length
+      - name: Test inputs are semantic versioning.
+        shell: bash
+        run: |
+          if echo "$SEMANTIC_VERSIONING" | grep -qE '^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$'; then
+            echo "$SEMANTIC_VERSIONING is semantic versioning."
+            exit 0
+          else
+            echo "$SEMANTIC_VERSIONING is not semantic versioning." >&2
+            exit 1
+          fi
+# yamllint enable rule:line-length
+
       - uses: actions/checkout@v6
         with:
           ref: releng/v${{ inputs.major_ver }}
           persist-credentials: false
-
-      - name: Test inputs are semantic versioning.
-        shell: bash
-        run: |
-          bash ${{ env.SCRIPTS_DIR }}/test_semantic_versioning.sh \
-          ${{ env.SEMANTIC_VERSIONING }}
 
       - name: Store release target SHA.
         shell: bash
@@ -51,16 +55,16 @@ jobs:
         shell: bash
         run: |
           git archive --format=zip \
-          -o ${{ env.ARCHIVE_FILE }} \
-          ${{ env.RELEASE_TARGET }}
+          -o "$ARCHIVE_FILE" \
+          "$RELEASE_TARGET"
 
       - name: Create draft release with attached archive.
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create "${{ env.SEMANTIC_VERSIONING }}" \
+          gh release create "$SEMANTIC_VERSIONING" \
           --draft \
-          --target ${{ env.RELEASE_TARGET }} \
-          --title "${{ env.SEMANTIC_VERSIONING }}" \
+          --target "$RELEASE_TARGET" \
+          --title "$SEMANTIC_VERSIONING" \
           --generate-notes \
-          ${{ env.ARCHIVE_FILE }}
+          "$ARCHIVE_FILE"
